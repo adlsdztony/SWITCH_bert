@@ -303,7 +303,7 @@ class Predictor:
             
             # All probabilities
             for j, skill in enumerate(self.skill_labels):
-                result[f'{skill}_prob'] = probabilities[i][j]
+                result[f'{skill}'] = probabilities[i][j]
             
             # Top 3 most likely skills
             top_3_indices = np.argsort(probabilities[i])[-3:][::-1]
