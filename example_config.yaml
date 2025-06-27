@@ -10,10 +10,17 @@ data:
   # val_size: 0.1
   
   # Option 2: Separate files mode (new)
-  train_file: './train.csv'
-  test_file: './test.csv'
+  train_file: './data/train.csv'
+  test_file: './data/test.csv'
+  val_file: './data/validation.csv'  # Optional: if not provided, validation will be split from training data
   mode: 'separate_files'
-  val_size: 0.1  # Validation split from training data
+  val_size: 0.1  # Only used if val_file is not provided
+  
+  # Option 2b: Separate files mode without validation file
+  # train_file: './data/train.csv'
+  # test_file: './data/test.csv'
+  # mode: 'separate_files'
+  # val_size: 0.1  # Validation split from training data
   
   # Common data processing parameters
   annotator_columns: ['Anthea', 'Karen', 'Kimmy']
@@ -24,16 +31,16 @@ data:
 
 # Model Configuration
 model:
-  model_name: 'bert-base-uncased'
+  model_name: 'bert-large-uncased'
   max_length: 512
   dropout_prob: 0.1
 
 # Training Configuration
 training:
-  batch_size: 16
-  learning_rate: 2.0e-05
-  num_epochs: 5
-  warmup_steps: 500
+  batch_size: 32
+  learning_rate: 8.0e-05
+  num_epochs: 10
+  warmup_steps: 50
   weight_decay: 0.01
   use_gpu: true
   save_model: true

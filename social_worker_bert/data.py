@@ -247,10 +247,11 @@ class DataProcessor:
         
         # Second pass: preprocess each split with unified skill labels
         final_results = {}
-        for split_name in ['train', 'test']:
-            df = results[f'{split_name}_df']
-            texts, labels, _ = self._preprocess_dataframe(df, f"{split_name} dataset", use_existing_mlb=True)
-            final_results[split_name] = (texts, labels, self.skill_labels)
+        for split_name in ['train', 'test', 'val']:
+            if f'{split_name}_df' in results:  # Only process if the split exists
+                df = results[f'{split_name}_df']
+                texts, labels, _ = self._preprocess_dataframe(df, f"{split_name} dataset", use_existing_mlb=True)
+                final_results[split_name] = (texts, labels, self.skill_labels)
         
         return final_results
     
@@ -361,15 +362,23 @@ class DataProcessor:
         train_texts, train_labels, _ = data_dict['train']
         test_texts, test_labels, _ = data_dict['test']
         
-        # Create validation set from training data
-        X_train, X_val, y_train, y_val = train_test_split(
-            train_texts, train_labels,
-            test_size=self.config.data.val_size,
-            random_state=self.config.data.random_state,
-            stratify=None
-        )
-        
-        X_test, y_test = test_texts, test_labels
+        # Check if validation file is provided
+        if 'val' in data_dict:
+            # Use provided validation set
+            val_texts, val_labels, _ = data_dict['val']
+            X_train, X_val, X_test = train_texts, val_texts, test_texts
+            y_train, y_val, y_test = train_labels, val_labels, test_labels
+            print("✅ Using provided validation file")
+        else:
+            # Create validation set from training data
+            X_train, X_val, y_train, y_val = train_test_split(
+                train_texts, train_labels,
+                test_size=self.config.data.val_size,
+                random_state=self.config.data.random_state,
+                stratify=None
+            )
+            X_test, y_test = test_texts, test_labels
+            print(f"✅ Created validation set from training data (val_size={self.config.data.val_size})")
         
         self._print_split_summary(X_train, X_val, X_test, y_train, y_val, y_test)
         return X_train, X_val, X_test, y_train, y_val, y_test

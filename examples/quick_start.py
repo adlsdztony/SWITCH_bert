@@ -20,17 +20,11 @@ def main():
     print("=" * 50)
     
     # Create pipeline with default configuration
-    pipeline = SocialWorkerBERTPipeline()
+    pipeline = SocialWorkerBERTPipeline(config_path='./example_config.yaml')
     
-    # Set your data file path
-    pipeline.config.data.data_file = './tri.csv'
-    
-    # Optional: Adjust some parameters for quick testing
-    pipeline.config.training.num_epochs = 2  # Reduce for quick testing
-    pipeline.config.training.batch_size = 8  # Reduce if you have memory issues
     
     # Run the complete pipeline
-    results = pipeline.run(output_dir='./quick_start_results')
+    results = pipeline.run(output_dir='./results')
     
     print("\n✅ Quick start example completed!")
     print(f"Best validation F1: {results['training_history']['best_val_f1']:.4f}")

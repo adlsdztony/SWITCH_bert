@@ -182,7 +182,7 @@ def main():
     
     # Check for command line arguments
     if True:
-        model_path = "/home/switch/switch_research/Bert_classifier_Test/SWITCH_bert/results/b/social_worker_bert_model.pt"  # Default model path
+        model_path = "/home/switch/switch_research/bert_classifier/SWITCH_bert/results/social_worker_bert_model.pt"  # Default model path
         if os.path.exists(model_path):
             print(f"🔄 Loading model from command line argument: {model_path}")
             if tester.load_model(model_path):

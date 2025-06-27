@@ -226,6 +226,20 @@ class SocialWorkerBERTPipeline:
                 train_predictions_path,
                 train_results['labels']
             )
+
+            # Validation set predictions if available
+            if 'val' in self.processed_data['loaders']:
+                val_results = self.predictor.evaluate_model(
+                    self.processed_data['loaders']['val']
+                )
+                val_predictions_path = os.path.join(output_dir, "val_detailed_predictions.csv")
+                self.predictor.save_predictions(
+                    self.processed_data['splits']['X_val'],
+                    val_results['predictions'],
+                    val_results['probabilities'],
+                    val_predictions_path,
+                    val_results['labels']
+                )
         
         # Save configuration
         config_path = os.path.join(output_dir, "config.yaml")

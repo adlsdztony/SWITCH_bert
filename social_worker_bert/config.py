@@ -20,6 +20,7 @@ class DataConfig:
     data_file: Optional[str] = './tri.csv'  # Single file mode (legacy)
     train_file: Optional[str] = None  # Separate train file
     test_file: Optional[str] = None   # Separate test file
+    val_file: Optional[str] = None    # Separate validation file (optional)
     
     # Data processing parameters
     annotator_columns: List[str] = field(default_factory=lambda: ['Anthea', 'Karen', 'Kimmy'])
@@ -224,10 +225,13 @@ class Config:
         self.determine_data_mode()
         
         if self.data.mode == 'separate_files':
-            return {
+            files = {
                 'train': self.data.train_file,
                 'test': self.data.test_file
             }
+            if self.data.val_file:
+                files['val'] = self.data.val_file
+            return files
         else:
             return {
                 'single': self.data.data_file
