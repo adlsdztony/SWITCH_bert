@@ -89,6 +89,7 @@ class EvaluationConfig:
     classification_threshold: float = 0.5
     metrics: List[str] = field(default_factory=lambda: ['f1_macro', 'f1_micro', 'precision', 'recall'])
     save_detailed_predictions: bool = True
+    multi_thresholds: Optional[Dict[str, float]] = None
 
 
 class Config:

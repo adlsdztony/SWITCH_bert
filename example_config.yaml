@@ -37,8 +37,8 @@ model:
 
 # Training Configuration
 training:
-  batch_size: 32
-  learning_rate: 8.0e-05
+  batch_size: 42
+  learning_rate: 1.0e-04
   num_epochs: 10
   warmup_steps: 50
   weight_decay: 0.01
@@ -69,3 +69,7 @@ evaluation:
   classification_threshold: 0.5
   metrics: ['f1_macro', 'f1_micro', 'precision', 'recall']
   save_detailed_predictions: true
+  multi_thresholds:
+    Active Listening: 0.0
+    Empathy: 0.0
+    Providing Feedback: 0.0

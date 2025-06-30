@@ -43,7 +43,7 @@ class Predictor:
         # Set model to evaluation mode
         self.model.eval()
     
-    def predict_single(self, text: str, threshold: Optional[float] = None, verbose: bool = True) -> Tuple[List[str], Dict[str, float]]:
+    def predict_single(self, text: str, threshold: Optional[float] = None, verbose: bool = True, multi_threshold: Optional[dict] = None) -> Tuple[List[str], Dict[str, float]]:
         """
         Predict skills for a single text.
         
@@ -110,7 +110,7 @@ class Predictor:
         
         return predicted_skills, prob_dict
     
-    def predict_batch(self, texts: List[str], threshold: Optional[float] = None) -> Tuple[np.ndarray, np.ndarray]:
+    def predict_batch(self, texts: List[str], threshold: Optional[float] = None, multi_threshold: Optional[dict] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Predict skills for a batch of texts.
         
@@ -123,7 +123,7 @@ class Predictor:
         """
         if threshold is None:
             threshold = self.config.evaluation.classification_threshold
-        
+
         predictions = []
         probabilities = []
         
@@ -146,7 +146,7 @@ class Predictor:
                 logits = outputs.logits
                 probs = torch.sigmoid(logits).cpu().numpy()[0]
                 
-                # Apply threshold
+
                 preds = (probs > threshold).astype(int)
                 
                 predictions.append(preds)
@@ -154,7 +154,7 @@ class Predictor:
         
         return np.array(predictions), np.array(probabilities)
     
-    def evaluate_model(self, data_loader: DataLoader, threshold: Optional[float] = None) -> Dict[str, Any]:
+    def evaluate_model(self, data_loader: DataLoader, threshold: Optional[float] = None, multi_threshold: Optional[dict] = None) -> Dict[str, Any]:
         """
         Comprehensive model evaluation on a dataset.
         
@@ -168,6 +168,9 @@ class Predictor:
         if threshold is None:
             threshold = self.config.evaluation.classification_threshold
         
+        if multi_threshold is None:
+            multi_threshold = self.config.evaluation.multi_thresholds
+
         self.model.eval()
         all_predictions = []
         all_labels = []
@@ -187,8 +190,13 @@ class Predictor:
                 all_labels.extend(labels.cpu().numpy())
                 
                 # Apply threshold
-                predictions = (probabilities > threshold).int()
-                all_predictions.extend(predictions.cpu().numpy())
+                if multi_threshold:
+                    probabilities = probabilities.cpu().numpy()
+                    predictions = (probabilities > np.array([multi_threshold.get(skill, threshold) for skill in self.skill_labels])).astype(int)
+                    all_predictions.extend(predictions)
+                else:
+                    predictions = (probabilities > threshold).int()
+                    all_predictions.extend(predictions.cpu().numpy())
         
         all_predictions = np.array(all_predictions)
         all_labels = np.array(all_labels)
