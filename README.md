@@ -8,6 +8,7 @@ A comprehensive Python library for training and deploying BERT-based multi-label
 - **Multi-label Classification**: Detect multiple social worker skills simultaneously
 - **BERT-based Architecture**: Leverages pre-trained BERT models
 - **Class Imbalance Handling**: Focal loss and other techniques for imbalanced datasets
+- **Data Augmentation**: Automatic text augmentation for rare classes using synonym replacement and paraphrasing
 - **Flexible Configuration**: YAML-based configuration with command-line overrides
 - **Comprehensive Evaluation**: Detailed metrics and per-class analysis
 - **Easy Deployment**: Save/load trained models for inference
@@ -303,6 +304,39 @@ trainer.save_checkpoint(epoch=5, additional_data={'custom_info': 'value'})
 
 # Load checkpoint to resume training
 resume_epoch = trainer.load_checkpoint('checkpoint_epoch_5.pt')
+```
+
+### Data Augmentation
+
+The library includes sophisticated data augmentation techniques to handle class imbalance and improve model performance:
+
+```python
+# Enable data augmentation
+config.data_augmentation.enable = True
+config.data_augmentation.rare_threshold = 1.0  # Classes with <1% of samples
+config.data_augmentation.augment_factor = 3    # Generate 3x more samples
+config.data_augmentation.methods = ['paraphrase', 'synonym_replacement']
+```
+
+**Available Augmentation Methods:**
+- **Paraphrase**: Combines multiple techniques for natural text variation
+- **Synonym Replacement**: Replaces words with synonyms using WordNet
+- **Random Insertion**: Inserts synonyms at random positions
+- **Random Deletion**: Removes words with low probability
+- **Random Swap**: Swaps word positions randomly
+
+**How it works:**
+1. Identifies rare classes based on the threshold percentage
+2. Finds samples containing rare classes
+3. Generates augmented samples using selected methods
+4. Applies augmentation only to training data (not validation/test)
+
+```python
+# Use data augmentation directly
+from social_worker_bert.augmentation import DataAugmenter
+
+augmenter = DataAugmenter(config)
+augmented_texts, augmented_labels = augmenter.augment_dataset(texts, labels)
 ```
 
 ## 🔧 Command Line Interface

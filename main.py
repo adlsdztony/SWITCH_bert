@@ -233,6 +233,8 @@ Examples:
             parser.print_help()
     
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"❌ Error: {e}")
         sys.exit(1)
 

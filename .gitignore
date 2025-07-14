@@ -12,3 +12,7 @@ wheels/
 *results/
 
 data/
+
+results*
+
+test_*.py

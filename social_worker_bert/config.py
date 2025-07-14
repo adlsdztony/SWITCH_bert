@@ -119,7 +119,7 @@ class Config:
         self.update_from_dict(kwargs)
         
         # Set device
-        self.device = torch.device('cuda' if torch.cuda.is_available() and self.training.use_gpu else 'cpu')
+        self.device = torch.device('cuda:3' if torch.cuda.is_available() and self.training.use_gpu else 'cpu')
         
         # Set random seeds
         self.set_random_seeds()

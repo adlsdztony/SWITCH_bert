@@ -20,6 +20,7 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizer
 
 from .config import Config
+from .augmentation import DataAugmenter
 
 
 class SocialWorkSkillDataset(Dataset):
@@ -332,8 +333,11 @@ class DataProcessor:
             # Separate files mode
             return self._split_separate_files(data_input)
         else:
-            # Single file mode
-            texts, labels = data_input
+            # Single file mode - unpack the tuple
+            if len(data_input) == 3:
+                texts, labels, skill_labels = data_input
+            else:
+                texts, labels = data_input
             return self._split_single_file(texts, labels)
     
     def _split_single_file(self, texts: List[str], labels: np.ndarray) -> Tuple[List[str], List[str], List[str], np.ndarray, np.ndarray, np.ndarray]:
@@ -353,6 +357,9 @@ class DataProcessor:
             random_state=self.config.data.random_state, 
             stratify=None
         )
+        
+        # Apply data augmentation to training set only
+        X_train, y_train = self.apply_data_augmentation(X_train, y_train, "training set")
         
         self._print_split_summary(X_train, X_val, X_test, y_train, y_val, y_test)
         return X_train, X_val, X_test, y_train, y_val, y_test
@@ -379,6 +386,9 @@ class DataProcessor:
             )
             X_test, y_test = test_texts, test_labels
             print(f"✅ Created validation set from training data (val_size={self.config.data.val_size})")
+        
+        # Apply data augmentation to training set only
+        X_train, y_train = self.apply_data_augmentation(X_train, y_train, "training set")
         
         self._print_split_summary(X_train, X_val, X_test, y_train, y_val, y_test)
         return X_train, X_val, X_test, y_train, y_val, y_test
@@ -495,3 +505,37 @@ class DataProcessor:
             'mlb': self.mlb,
             'class_weights': self.class_weights
         }
+    
+    def apply_data_augmentation(self, texts: List[str], labels: np.ndarray, dataset_name: str = "training") -> Tuple[List[str], np.ndarray]:
+        """
+        Apply data augmentation to increase dataset size and handle class imbalance.
+        
+        Args:
+            texts: List of text samples
+            labels: Binary multi-label array
+            dataset_name: Name of the dataset (for logging)
+            
+        Returns:
+            Tuple of (augmented_texts, augmented_labels)
+        """
+        if not self.config.data_augmentation.enable:
+            print(f"🔄 Data augmentation disabled for {dataset_name}")
+            return texts, labels
+        
+        # Convert binary labels back to label lists for augmentation
+        label_lists = []
+        for label_array in labels:
+            # Get indices where label is 1
+            active_indices = np.where(label_array == 1)[0]
+            # Map indices back to skill labels
+            active_labels = [self.skill_labels[i] for i in active_indices]
+            label_lists.append(active_labels)
+        
+        # Apply augmentation
+        augmenter = DataAugmenter(self.config)
+        augmented_texts, augmented_label_lists = augmenter.augment_dataset(texts, label_lists)
+        
+        # Convert augmented label lists back to binary format
+        augmented_labels = self.mlb.transform(augmented_label_lists)
+        
+        return augmented_texts, augmented_labels

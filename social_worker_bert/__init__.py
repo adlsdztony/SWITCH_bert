@@ -11,6 +11,7 @@ Main Components:
 - training: Training pipeline and utilities
 - inference: Prediction and evaluation utilities
 - pipeline: End-to-end pipeline orchestration
+- augmentation: Data augmentation for handling class imbalance
 
 Usage:
     # Quick start - full pipeline
@@ -24,6 +25,7 @@ Usage:
     from social_worker_bert.models import MultiLabelBERTClassifier
     from social_worker_bert.training import Trainer
     from social_worker_bert.inference import Predictor
+    from social_worker_bert.augmentation import DataAugmenter
 """
 
 __version__ = "1.0.0"
@@ -36,6 +38,7 @@ from .models import MultiLabelBERTClassifier, FocalLoss
 from .training import Trainer
 from .inference import Predictor
 from .pipeline import SocialWorkerBERTPipeline
+from .augmentation import DataAugmenter
 
 __all__ = [
     'Config',
@@ -44,5 +47,6 @@ __all__ = [
     'FocalLoss',
     'Trainer',
     'Predictor',
-    'SocialWorkerBERTPipeline'
+    'SocialWorkerBERTPipeline',
+    'DataAugmenter'
 ]

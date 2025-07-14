@@ -57,19 +57,19 @@ class_imbalance:
   focal_alpha: 0.25
   focal_gamma: 2.0
 
-# Data Augmentation
+# Data Augmentation Configuration
 data_augmentation:
-  enable: true
-  rare_threshold: 1.0
-  augment_factor: 3
-  methods: ['paraphrase', 'synonym_replacement']
+  enable: true                    # Enable/disable data augmentation
+  rare_threshold: 0.1            # Threshold for identifying rare classes
+  augment_factor: 5              # Multiplication factor for rare class samples
+  methods: ['paraphrase', 'synonym_replacement']  # Available: paraphrase, synonym_replacement, random_insertion, random_deletion, random_swap
 
 # Evaluation Configuration
 evaluation:
   classification_threshold: 0.5
   metrics: ['f1_macro', 'f1_micro', 'precision', 'recall']
   save_detailed_predictions: true
-  multi_thresholds:
-    Active Listening: 0.0
-    Empathy: 0.0
-    Providing Feedback: 0.0
+  # multi_thresholds:
+  #   Active Listening: 0.0
+  #   Empathy: 0.0
+  #   Providing Feedback: 0.0
